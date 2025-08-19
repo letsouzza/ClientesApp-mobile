@@ -34,7 +34,7 @@ fun ListaDeClientes(modifier: Modifier = Modifier) {
                 navController = controleNavegacao,
                 startDestination = "conteudo"
             ) {
-                composable(route = "conteudo") { Conteudo(padding) }
+                composable(route = "conteudo") { Conteudo(padding, controleNavegacao) }
                 composable(route = "cadastro") { ClienteForm(padding, controleNavegacao) }
             }
         }

@@ -15,12 +15,14 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -48,6 +50,9 @@ fun ClienteForm(padding: PaddingValues, controleNavegacao: NavHostController?) {
     var emailCliente by remember { mutableStateOf("") }
     var isNomeError by remember { mutableStateOf(false) }
     var isEmailError by remember { mutableStateOf(false) }
+
+    // Variavel determina se a mensagem deve aparecer
+    var mostrarMensagemSucesso by remember { mutableStateOf(false) }
 
     fun validar(): Boolean{
         isNomeError = nomeCliente.length < 3
@@ -87,7 +92,7 @@ fun ClienteForm(padding: PaddingValues, controleNavegacao: NavHostController?) {
             }
             Spacer(modifier = Modifier .height(16.dp))
             OutlinedTextField(
-                value = nomeCliente,
+                 value = nomeCliente,
                 onValueChange = {
                     nomeCliente = it
                 },
@@ -151,9 +156,8 @@ fun ClienteForm(padding: PaddingValues, controleNavegacao: NavHostController?) {
                         )
                         GlobalScope.launch(Dispatchers.IO){
                             val clienteNovo = clienteApi.cadastrarCliente(cliente).await()
-                            println("**************${clienteNovo}")
+                            mostrarMensagemSucesso = true
                         }
-                        controleNavegacao!!.navigate("conteudo")
                     }else{
                         println("********* Dados incorretos")
                     }
@@ -165,8 +169,42 @@ fun ClienteForm(padding: PaddingValues, controleNavegacao: NavHostController?) {
                 Text(text = "Gravar Cliente")
             }
         }
+        if (mostrarMensagemSucesso){
+            AlertDialog(
+                onDismissRequest = {
+                    mostrarMensagemSucesso = false
+                    nomeCliente = ""
+                    emailCliente = ""
+                },
+                title = {
+                    Text(text = "Sucesso")
+                },
+                text = {
+                    Text(text = "Cliente $nomeCliente cadastrado com sucesso!\nDeseja cadastrar outro ciente? ")
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = {
+                            nomeCliente = ""
+                            emailCliente = ""
+                            mostrarMensagemSucesso = false
+                        }
+                    ){
+                        Text(text = "Sim")
+                    }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = {
+                            controleNavegacao!!.navigate("conteudo")
+                        }
+                    ){
+                        Text(text= "Não")
+                    }
+                }
+            )
+        }
     }
-
 }
 
 @Preview(
